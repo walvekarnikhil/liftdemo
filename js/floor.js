@@ -48,19 +48,19 @@ var Floor = function(elevation){
 	var FLOOR_HEIGHT = 100;
 	var group = new THREE.Object3D();
 
-	var floorSlab = new Slab(200,200,0x777777,true,"http://localhost/~nikhilw/3d/img/floor.jpg");
-	var ceilSlab = new Slab(200,200,0x888888,false,"http://localhost/~nikhilw/3d/img/ceil.jpg");
+	var floorSlab = new Slab(200,200,0x777777,true,"img/floor.jpg");
+	var ceilSlab = new Slab(200,200,0x888888,false,"img/ceil.jpg");
 	ceilSlab.position.y = FLOOR_HEIGHT ;
 	ceilSlab.rotation.x=Math.PI / 2;
 	group.add(floorSlab);
 	group.add(ceilSlab);
 
 
-	var wall1 = new Wall(70,100, new THREE.Vector3(-65,50,-98),"http://localhost/~nikhilw/3d/img/brick1.jpg",0x404040);
-	var wall2 = new Wall(70,100, new THREE.Vector3(65,50,-98),"http://localhost/~nikhilw/3d/img/brick1.jpg",0x404040);
-	var wallL = new Wall(200,100, new THREE.Vector3(-98,50,0),"http://localhost/~nikhilw/3d/img/sidewall.jpg",0x888888);
+	var wall1 = new Wall(70,100, new THREE.Vector3(-65,50,-98),"img/brick1.jpg",0x404040);
+	var wall2 = new Wall(70,100, new THREE.Vector3(65,50,-98),"img/brick1.jpg",0x404040);
+	var wallL = new Wall(200,100, new THREE.Vector3(-98,50,0),"img/sidewall.jpg",0x888888);
 	wallL.rotation.y=90 * (Math.PI / 180);
-	var wallR = new Wall(200,100, new THREE.Vector3(98,50,0),"http://localhost/~nikhilw/3d/img/sidewall.jpg",0x888888);
+	var wallR = new Wall(200,100, new THREE.Vector3(98,50,0),"img/sidewall.jpg",0x888888);
 	wallR.rotation.y=90 * (Math.PI / 180);
 	
 

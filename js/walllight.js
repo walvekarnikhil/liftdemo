@@ -41,7 +41,7 @@ var createSphere = function ()  {
         segments = 16,
         rings = 16;
 
-    var textureLava = THREE.ImageUtils.loadTexture( "http://localhost/~nikhilw/3d/img/lavatile.jpg" );
+    var textureLava = THREE.ImageUtils.loadTexture( "img/lavatile.jpg" );
 
     // create the sphere's material
     var sphereMaterial =
