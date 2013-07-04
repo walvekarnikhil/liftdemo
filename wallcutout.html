@@ -1,0 +1,144 @@
+<html>
+<body>
+<script type="text/javascript" src="js/jquery-2.0.2.js" ></script>
+<script type="text/javascript" src="js/three.min.js"></script>
+<script type="text/javascript" src="js/jquery-2.0.2.js" ></script>
+<script type="text/javascript" src="js/TrackballControls.js"></script>
+<script type="text/javascript" src="js/controls.js"></script>
+<script type="text/javascript" src="js/axis.js"></script>
+ 
+<!--<script type="text/javascript" src="js/THREEx.GeometryUtils.js"></script>
+ -->
+ <script type="text/javascript" src="http://localhost/~nikhilw/3d/ThreeCSG-master/ThreeCSG.js"></script>
+<script type="text/javascript" src="js/lights.js"></script>
+<script type="text/javascript" src="js/Lift.js"></script>
+
+<script type="text/javascript" src="js/floor.js"></script>
+<script>
+$(document).ready(function(){
+var aspect = window.innerWidth / window.innerHeight;
+var near = 0.1;
+var far = 8000;
+var angle = 45;
+
+var createRenderer = function(){
+    var renderer =  new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    return renderer;
+}
+var createLight = function(){
+    var light = new THREE.PointLight(0xFFFFFF);
+    light.position.x=0;
+    light.position.y=0;
+    light.position.z=100;
+    return light;
+}
+
+var createCamera = function(){
+    var camera = new THREE.PerspectiveCamera(
+        angle, aspect, near, far);
+    camera.position.x=0;
+    camera.position.y=100;
+    camera.position.z=400;
+    camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
+    return camera;
+}
+
+var createScene = function(){
+    var scene = new THREE.Scene();
+    return scene;
+}
+
+var scene = createScene();
+var camera = createCamera();
+var renderer = createRenderer();
+var axis = createAxes(600);
+var light = createAmbientLight(0xaaaaaa);
+
+scene.add(axis);
+scene.add(createLight());
+    var textureLava = THREE.ImageUtils.loadTexture( "http://localhost/~nikhilw/3d/liftdemo/img/brick1.jpg" );
+    textureLava.wrapS = textureLava.wrapT = THREE.RepeatWrapping;
+    textureLava.format = THREE.RGBFormat;
+
+    var materialPhong = new THREE.MeshPhongMaterial( { shininess: 50, ambient: 0xFFFFFF, color: 0xffffff, specular: 0x999999, map: textureLava,emissive: 0x404040 } );    
+
+// var cylinderGeometry = 
+//         new THREE.Mesh(new THREE.CubeGeometry(
+//         200,100,4),material);
+//     var origCsg = THREE.CSG.toCSG(cylinderGeometry);
+    
+//     var intersectingCube = new THREE.Mesh(new THREE.CubeGeometry( 20, 70, 4 ),material);
+//     intersectingCube.position.y=-30;  
+
+
+//     var intersectingCsg = THREE.CSG.toCSG(intersectingCube);
+//     var substractedCsg = origCsg.subtract(intersectingCsg);
+    
+//     var cubeMesh = new THREE.Mesh(
+//         THREE.CSG.fromCSG(substractedCsg),material);
+//     cubeMesh.position.z=10; 
+//     scene.add(cubeMesh);
+
+var cylinderGeometry = 
+        new THREE.Mesh(new THREE.CubeGeometry(
+        200,100,4),materialPhong);
+        var oCubeBSP = new ThreeBSP(cylinderGeometry);
+    var intersectingCube = new THREE.Mesh(new THREE.CubeGeometry( 20, 70, 4 ),materialPhong);
+    intersectingCube.position.set(0,-30,0);
+
+    var subBSP = new ThreeBSP(intersectingCube);
+
+    var newBSP = oCubeBSP.subtract(subBSP);
+    
+    
+    var cubeMesh = newBSP.toMesh(materialPhong);
+    scene.add(cubeMesh);
+
+
+// var cylinderGeometry = 
+//         new THREE.Mesh(new THREE.CubeGeometry(
+//         200,100,4),material);
+//     var intersectingCube = new THREE.Mesh(new THREE.CubeGeometry( 20, 70, 4 ),material);
+// intersectingCube.position.y=30;
+// var wall = THREE.CSG.toCSG(new THREE.CubeGeometry(
+//         200,100,4));
+// var geometry = wall.subtract(intersectingCube);
+
+// scene.add(new THREE.Mesh(geometry,material));
+var controls = createControls(camera);
+
+var render = function() {
+    renderer.render(scene,camera);
+}
+controls.addEventListener('change',render);
+var animate = function(){
+    requestAnimationFrame(animate);
+    render();
+    controls.update();
+}
+
+animate();
+
+$("#container").append(renderer.domElement);
+
+var onWindowResize = function() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+}
+
+window.addEventListener('resize',onWindowResize,false);
+
+$('body').keypress(function(event) {
+    if (event.charCode && event.charCode == 32) {
+        open = !open;
+    }
+});
+
+});
+</script>
+
+<div id="container" ></div>
+</body>
+</html>

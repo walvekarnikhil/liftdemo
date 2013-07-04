@@ -71,19 +71,24 @@ var scene = createScene();
 var camera = createCamera();
 var renderer = createRenderer();
 var axis = createAxes(600);
-// scene.add(axis);
+scene.add(axis);
 
 
 var FLOOR_HEIGHT = 100;
-var floor1 = new Floor(0,FLOOR_HEIGHT);
-scene.add(floor1.mesh());
-// var floor2 = new Floor(1,FLOOR_HEIGHT);
-// scene.add(floor2.mesh());
 
 var liftHeight = FLOOR_HEIGHT - (FLOOR_HEIGHT/4);
 var lift = new Lift(40,liftHeight,40,true,scene);
 lift.mesh().position.set(0,FLOOR_HEIGHT/2-((FLOOR_HEIGHT/2)-(liftHeight/2)),-120);
+var liftCutOut = new THREE.Mesh(new THREE.CubeGeometry(
+        40,liftHeight,10));
+liftCutOut.position.set(0,-1 * (FLOOR_HEIGHT- liftHeight)/2,0);
 scene.add(lift.mesh());
+
+
+var floor1 = new Floor(0,FLOOR_HEIGHT,liftCutOut);
+scene.add(floor1.mesh());
+// var floor2 = new Floor(1,FLOOR_HEIGHT);
+// scene.add(floor2.mesh());
 
 
 var controls = createControls(camera);

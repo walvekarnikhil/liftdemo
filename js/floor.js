@@ -46,7 +46,7 @@ var Slab = function(x,y,materialcolor,reflectivity,textureUrl) {
     return object;
 }
 
-var Floor = function(elevation,FLOOR_HEIGHT){
+var Floor = function(elevation,FLOOR_HEIGHT,lift){
 	var group = new THREE.Object3D();
 
 	var floorSlab = new Slab(200,200,0x444444,true,"img/floor.gif");
@@ -55,11 +55,13 @@ var Floor = function(elevation,FLOOR_HEIGHT){
 	ceilSlab.rotation.x=Math.PI / 2;
 	group.add(floorSlab);
 	group.add(ceilSlab);
+
     var liftWallWidth = 200;
     var liftWidth = 20;
     var liftSideWallWidth = (liftWallWidth/2)-liftWidth;
-	var wall1 = new Wall(liftSideWallWidth,100, new THREE.Vector3(-((liftWallWidth/2)-(liftSideWallWidth/2)),50,-98),"img/brick1.jpg",0x404040);
-	var wall2 = new Wall(liftSideWallWidth,100, new THREE.Vector3((liftWallWidth/2)-(liftSideWallWidth/2),50,-98),"img/brick1.jpg",0x404040);
+    var wall = new Wall(200,FLOOR_HEIGHT,new THREE.Vector3(0,FLOOR_HEIGHT/2,-98),"img/brick1.jpg",0x404040,lift);
+	// var wall1 = new Wall(liftSideWallWidth,100, new THREE.Vector3(-((liftWallWidth/2)-(liftSideWallWidth/2)),50,-98),"img/brick1.jpg",0x404040);
+	// var wall2 = new Wall(liftSideWallWidth,100, new THREE.Vector3((liftWallWidth/2)-(liftSideWallWidth/2),50,-98),"img/brick1.jpg",0x404040);
 	var wallL = new Wall(200,100, new THREE.Vector3(-98,50,0),"img/sidewall.jpg",0x888888);
 	wallL.rotation.y=90 * (Math.PI / 180);
 	var wallR = new Wall(200,100, new THREE.Vector3(98,50,0),"img/sidewall.jpg",0x888888);
@@ -74,8 +76,8 @@ var Floor = function(elevation,FLOOR_HEIGHT){
 	var spotLight1 = createSpotLight(0xffffff,8,light1Position,light1Target,90);
 	var spotLight2 = createSpotLight(0xffffff,8,light2Position,light2Target,90);
 
-	group.add(wall1);
-	group.add(wall2);
+	group.add(wall);
+	// group.add(wall2);
 	group.add(wallL);
 	group.add(wallR);
 	group.add(spotLight1);
@@ -95,36 +97,33 @@ var Floor = function(elevation,FLOOR_HEIGHT){
 }
 
 var Cube = function(
-    width,height,depth,textureUrl,materialcolor){
+    width,height,depth,textureUrl,materialcolor,cutout){
     var cubeGeometry = new THREE.CubeGeometry(
         width,height,depth);
-    // var material = 
-    //     new THREE.MeshLambertMaterial(
-    //         {
-    //             color:0xFF0000
-    //         });
-    
-    // var cubeMesh = new THREE.Mesh(
-    //     cubeGeometry,material);
 
     var textureLava = THREE.ImageUtils.loadTexture( textureUrl );
     textureLava.wrapS = textureLava.wrapT = THREE.RepeatWrapping;
     textureLava.format = THREE.RGBFormat;
 
-    var materialPhong = new THREE.MeshPhongMaterial( { shininess: 50, ambient: 0xFFFFFF, color: 0xffffff, specular: 0x999999, map: textureLava,emissive: materialcolor } );
-    // var torusGeometry = new THREE.TorusGeometry( 240, 60, 32, 64 );
-    // addObject( torusGeometry, materialPhong, 0, 100, 0, 0 );
-    // textureLava.repeat.set( 6, 2 );
-    
-    var cubeMesh = new THREE.Mesh(
-        cubeGeometry,materialPhong);
-    
+    var materialPhong = new THREE.MeshPhongMaterial( { shininess: 50, ambient: 0xFFFFFF, color: 0xffffff, specular: 0x999999, map: textureLava,emissive: materialcolor } );    
+    var cubeMesh = new THREE.Mesh(cubeGeometry,materialPhong);
+    if (cutout) {
+        var oCubeBSP = new ThreeBSP(cubeMesh);
+        var intersectingCube = cutout;
+        // intersectingCube.position.set(0,-30,0);
+
+        var subBSP = new ThreeBSP(intersectingCube);
+
+        var newBSP = oCubeBSP.subtract(subBSP);
+        
+        var cubeMesh = newBSP.toMesh(materialPhong);
+    }
     return cubeMesh;
   
 };
 
-var Wall = function (width, height,position, textureUrl,materialcolor) {
-    var cube = new Cube(width,height,4,textureUrl,materialcolor);
+var Wall = function (width, height,position, textureUrl,materialcolor,cutout) {
+    var cube = new Cube(width,height,4,textureUrl,materialcolor,cutout);
     cube.position = position;
     return cube;
 }
