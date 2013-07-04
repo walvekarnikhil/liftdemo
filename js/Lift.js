@@ -5,13 +5,14 @@ var SlidingDoor = function() {
 }
 
 
-var Lift = function (width,height,depth,hasMirrorInBack,scene) {
+var Lift = function (width,height,depth,hasMirrorInBack) {
 	var group = new THREE.Object3D();
 	var SIDE_WALLS_DEPTH = 2;
+		var mirrorCubeCamera = undefined;
+		var liftBackMirror = undefined;
 
-	var createLiftBox = function (width,height,depth,hasMirrorInBack,scene) {
+	var createLiftBox = function (width,height,depth,hasMirrorInBack) {
 		var liftBox = new THREE.Object3D();
-
        	var liftTexture = THREE.ImageUtils.loadTexture( "img/liftfloor.gif" );
 	    // texture.wrapS = texture.wrapT = THREE.RepeatWrapping;
 	    liftTexture.wrapS = THREE.RepeatWrapping;
@@ -99,13 +100,13 @@ var Lift = function (width,height,depth,hasMirrorInBack,scene) {
                 specular:0xFFFFFF,
                 shininess: 60
             });
-            var mirrorCubeCamera = new THREE.CubeCamera( 0.1, 5000, 512 );
+            mirrorCubeCamera = new THREE.CubeCamera( 0.1, 5000, 512 );
 			mirrorCubeCamera.renderTarget.minFilter = THREE.LinearMipMapLinearFilter;
-			scene.add( mirrorCubeCamera );
+			liftBox.add( mirrorCubeCamera );
 			var mirrorCubeMaterial = new THREE.MeshBasicMaterial( { envMap: mirrorCubeCamera.renderTarget } );
 	
 
-    		var liftBackMirror = new THREE.Mesh(new THREE.PlaneGeometry(width,height/2,4,4),mirrorCubeMaterial);
+    		liftBackMirror = new THREE.Mesh(new THREE.PlaneGeometry(width,height/2,4,4),mirrorCubeMaterial);
     		liftBackMirror.position.set(0,height/6,-(depth-4)/2);
     		mirrorCubeCamera.position = liftBackMirror.position;
 			// liftBackMirror.rotation.x=-90 * (Math.PI / 180);
@@ -119,7 +120,7 @@ var Lift = function (width,height,depth,hasMirrorInBack,scene) {
 	var createListDoors = function(width,height,depth) {
 	}
 
-	group.add(createLiftBox(width,height,depth,hasMirrorInBack,scene));
+	group.add(createLiftBox(width,height,depth,hasMirrorInBack));
 	var doors = new LiftDoors(width,height,depth,SIDE_WALLS_DEPTH/2);
 	group.add(doors.mesh());
 	_api = {
@@ -131,6 +132,13 @@ var Lift = function (width,height,depth,hasMirrorInBack,scene) {
 		},
 		close : function() {
 			doors.close();
+		},
+		updateMirror: function(renderer,scene) {
+			if (mirrorCubeCamera) {
+			    liftBackMirror.visible = false;
+			    mirrorCubeCamera.updateCubeMap( renderer, scene );
+    			liftBackMirror.visible = true;
+			}
 		}
 	};
 	return _api;
