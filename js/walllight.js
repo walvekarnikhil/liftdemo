@@ -70,18 +70,21 @@ var createSphere = function ()  {
 var scene = createScene();
 var camera = createCamera();
 var renderer = createRenderer();
-var sphere = createSphere();
-// var cube = createCube(30,30,30,'blue');
-// var wall = new Wall(200,40,"http://localhost/~nikhilw/3d/img/lavatile.jpg");
-var floor = new Floor(0);
-// cube.position.set(0,0,80);
-// scene.add(light);
 var axis = createAxes(600);
-scene.add(floor.mesh);
-scene.add(axis);
-// scene.add(sphere);
-// scene.add(wall);
-// scene.add( spotLight );
+// scene.add(axis);
+
+
+var FLOOR_HEIGHT = 100;
+var floor1 = new Floor(0,FLOOR_HEIGHT);
+scene.add(floor1.mesh());
+// var floor2 = new Floor(1,FLOOR_HEIGHT);
+// scene.add(floor2.mesh());
+
+var liftHeight = FLOOR_HEIGHT - (FLOOR_HEIGHT/4);
+var lift = new Lift(40,liftHeight,40,true,scene);
+lift.mesh().position.set(0,FLOOR_HEIGHT/2-((FLOOR_HEIGHT/2)-(liftHeight/2)),-120);
+scene.add(lift.mesh());
+
 
 var controls = createControls(camera);
 
@@ -90,15 +93,28 @@ var render = function() {
 }
 
 controls.addEventListener('change',render);
+var open = false;
 var animate = function(){
     requestAnimationFrame(animate);
     render();
+    if (open) {
+        lift.open();
+    } else {
+        lift.close();
+    }
+
     controls.update();
 }
 
 animate();
 
 $("#container").append(renderer.domElement);
+
+$('body').keypress(function(event) {
+    if (event.charCode && event.charCode == 32) {
+        open = !open;
+    }
+});
 
 var onWindowResize = function() {
     camera.aspect = window.innerWidth / window.innerHeight;

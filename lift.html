@@ -1,0 +1,93 @@
+<html>
+<body>
+<script type="text/javascript" src="js/jquery-2.0.2.js" ></script>
+<script type="text/javascript" src="js/three.min.js"></script>
+<script type="text/javascript" src="js/jquery-2.0.2.js" ></script>
+<script type="text/javascript" src="js/TrackballControls.js"></script>
+<script type="text/javascript" src="js/controls.js"></script>
+<script type="text/javascript" src="js/axis.js"></script>
+<script type="text/javascript" src="js/lights.js"></script>
+<script type="text/javascript" src="js/Lift.js"></script>
+
+<script type="text/javascript" src="js/floor.js"></script>
+<script>
+$(document).ready(function(){
+var aspect = window.innerWidth / window.innerHeight;
+var near = 0.1;
+var far = 8000;
+var angle = 45;
+
+var createRenderer = function(){
+    var renderer =  new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    return renderer;
+}
+
+var createCamera = function(){
+    var camera = new THREE.PerspectiveCamera(
+        angle, aspect, near, far);
+    camera.position.x=0;
+    camera.position.y=100;
+    camera.position.z=400;
+    camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
+    return camera;
+}
+
+var createScene = function(){
+    var scene = new THREE.Scene();
+    return scene;
+}
+
+var scene = createScene();
+var camera = createCamera();
+var renderer = createRenderer();
+var axis = createAxes(600);
+var lift = new Lift(60,100,60,true,scene);
+var light = createAmbientLight(0xaaaaaa);
+scene.add(lift.mesh());
+
+scene.add(axis);
+// scene.add(light);
+
+var controls = createControls(camera);
+
+var render = function() {
+    renderer.render(scene,camera);
+}
+var open = false;
+controls.addEventListener('change',render);
+var animate = function(){
+    requestAnimationFrame(animate);
+    render();
+    if (open) {
+        lift.open();
+    } else {
+        lift.close();
+    }
+    controls.update();
+}
+
+animate();
+
+$("#container").append(renderer.domElement);
+
+var onWindowResize = function() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+}
+
+window.addEventListener('resize',onWindowResize,false);
+
+$('body').keypress(function(event) {
+    if (event.charCode && event.charCode == 32) {
+        open = !open;
+    }
+});
+
+});
+</script>
+
+<div id="container" ></div>
+</body>
+</html>

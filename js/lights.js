@@ -11,7 +11,7 @@ var createSpotLight = function(color,intensity,position,target,distance) {
 	spotLight.shadowMapWidth = 1024;
 	spotLight.shadowMapHeight = 1024;
 
-	spotLight.shadowCameraNear = 100;
+	spotLight.shadowCameraNear = 1;
 	spotLight.shadowCameraFar = 400;
 	spotLight.shadowCameraFov = 30;
 	spotLight.castShadow = true;
@@ -28,4 +28,10 @@ var createSpotLight = function(color,intensity,position,target,distance) {
 var createAmbientLight = function(color){
     var light = new THREE.AmbientLight(color); // soft white light
     return light;
+}
+
+var createDirectionalLight = function(position) {
+	var directionalLight = new THREE.DirectionalLight( 0xffffff, 0.5 );
+	directionalLight.position = position;
+	return directionalLight;
 }
