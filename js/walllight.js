@@ -71,7 +71,7 @@ var scene = createScene();
 var camera = createCamera();
 var renderer = createRenderer();
 var axis = createAxes(600);
-scene.add(axis);
+// scene.add(axis);
 
 
 var FLOOR_HEIGHT = 100;
