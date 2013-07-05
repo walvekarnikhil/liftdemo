@@ -5,7 +5,7 @@
  * Time: 8:50 PM
  * To change this template use File | Settings | File Templates.
  */
-
+var WALL_THICKNESS = 4;
 var Slab = function(x,y,materialcolor,reflectivity,textureUrl) {
     var floorPlanGeometry = new THREE.PlaneGeometry(x,y);
 
@@ -27,7 +27,7 @@ var Slab = function(x,y,materialcolor,reflectivity,textureUrl) {
     var material =
         new THREE.MeshPhongMaterial({
             map: texture,
-            side:THREE.DoubleSide,
+            side:THREE.FrontSide,
         	// reflectivity:reflectivity,
          //    // light
          //    specular: 0xFFFFFF,
@@ -101,21 +101,19 @@ var Cube = function(
     var cubeGeometry = new THREE.CubeGeometry(
         width,height,depth);
 
-    var textureLava = THREE.ImageUtils.loadTexture( textureUrl );
-    textureLava.wrapS = textureLava.wrapT = THREE.RepeatWrapping;
-    textureLava.format = THREE.RGBFormat;
-
+    var textureLava = undefined;
+    if (textureUrl) {
+        textureLava = THREE.ImageUtils.loadTexture( textureUrl );
+        textureLava.wrapS = textureLava.wrapT = THREE.RepeatWrapping;
+        textureLava.format = THREE.RGBFormat;
+    }
     var materialPhong = new THREE.MeshPhongMaterial( { shininess: 50, ambient: 0xFFFFFF, color: 0xffffff, specular: 0x999999, map: textureLava,emissive: materialcolor } );    
     var cubeMesh = new THREE.Mesh(cubeGeometry,materialPhong);
     if (cutout) {
         var oCubeBSP = new ThreeBSP(cubeMesh);
         var intersectingCube = cutout;
-        // intersectingCube.position.set(0,-30,0);
-
         var subBSP = new ThreeBSP(intersectingCube);
-
         var newBSP = oCubeBSP.subtract(subBSP);
-        
         var cubeMesh = newBSP.toMesh(materialPhong);
     }
     return cubeMesh;
@@ -123,7 +121,7 @@ var Cube = function(
 };
 
 var Wall = function (width, height,position, textureUrl,materialcolor,cutout) {
-    var cube = new Cube(width,height,4,textureUrl,materialcolor,cutout);
+    var cube = new Cube(width,height,WALL_THICKNESS,textureUrl,materialcolor,cutout);
     cube.position = position;
     return cube;
 }

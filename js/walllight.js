@@ -69,51 +69,9 @@ var scene = createScene();
 var camera = createCamera();
 var renderer = createRenderer();
 var axis = createAxes(600);
-// scene.add(axis);
+scene.add(axis);
 
 
-// var FLOOR_HEIGHT = 100;
-
-// var liftHeight = FLOOR_HEIGHT - (FLOOR_HEIGHT/4);
-// var lift = new Lift(40,liftHeight,40,true,scene);
-// lift.mesh().position.set(0,FLOOR_HEIGHT/4-((FLOOR_HEIGHT/2)-(liftHeight/2)),-120);
-// var liftCutOut = new THREE.Mesh(new THREE.CubeGeometry(
-//         40,liftHeight,10));
-// liftCutOut.position.set(0,-1 * (FLOOR_HEIGHT- liftHeight)/2,0);
-// scene.add(lift.mesh());
-// camera.lookAt(lift.mesh().position);
-
-// var floor1 = new Floor(0,FLOOR_HEIGHT,liftCutOut);
-// floor1.mesh().position.y=-FLOOR_HEIGHT/4;
-// scene.add(floor1.mesh());
-// // var floor2 = new Floor(1,FLOOR_HEIGHT);
-// // scene.add(floor2.mesh());
-
-
-// var createLobby = function() {
-//     var floorPlanGeometry = new THREE.PlaneGeometry(690,337);
-
-//     // var elevatorSpaceGeometry = new THREE.CubeGeometry(100,5,50);
-
-//     // var floorCutoutGeometry = (new ThreeBSP(floorPlanGeometry)).subtract(new ThreeBSP(elevatorSpaceGeometry)).toGeometry();
-
-//     var texture = THREE.ImageUtils.loadTexture( "img/lobby.jpg" );
-//     texture.wrapS = THREE.RepeatWrapping;
-//     texture.wrapT = THREE.RepeatWrapping;
-//     texture.format = THREE.RGBFormat;
-//     var material =
-//         new THREE.MeshPhongMaterial({
-//             map: texture,
-//             side:THREE.DoubleSide,
-//             emissive: 0xFFFFFF,
-//         });
-//     var object = new THREE.Mesh(floorPlanGeometry,material);
-//     object.position.set(0,50,100);
-//     return object;
-// }
-
-// var lobby = createLobby();
-// scene.add(lobby);
 var building = new Building();
 building.mesh().position.y-=20;
 scene.add(building.mesh());
@@ -121,7 +79,7 @@ var controls = createControls(camera);
 
 var render = function() {
     renderer.render(scene,camera);
-    building.updateMirror(renderer,scene);
+    building.update(renderer,scene);
 }
 
 controls.addEventListener('change',render);
@@ -130,12 +88,6 @@ var animate = function(){
     requestAnimationFrame(animate);
     // camera.position.x+=0.1;
     render();
-    if (open) {
-        building.liftOpen();
-    } else {
-        building.liftClose();
-    }
-
     controls.update();
 }
 
@@ -145,7 +97,12 @@ $("#container").append(renderer.domElement);
 
 $('body').keypress(function(event) {
     if (event.charCode && event.charCode == 32) {
-        open = !open;
+        building.requestLiftOpen();
+    } else if (event.charCode && event.charCode >= 48 && event.charCode <= 49) {
+        console.log("Request to move lift to " + (event.charCode - 48));
+        building.requestLiftMove(event.charCode - 48);
+    } else {
+        console.log(event.charCode);
     }
 });
 

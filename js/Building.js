@@ -10,8 +10,9 @@ var Building = function() {
 	    var material =
 	        new THREE.MeshPhongMaterial({
 	            map: texture,
-	            side:THREE.DoubleSide,
+	            side:THREE.BackSide,
 	            emissive: 0xFFFFFF,
+
 	        });
 	    var object = new THREE.Mesh(floorPlanGeometry,material);
 	    object.position.set(0,25,100);
@@ -22,7 +23,7 @@ var Building = function() {
 	var buildingObjects = new THREE.Object3D();
 
 	var liftHeight = FLOOR_HEIGHT - (FLOOR_HEIGHT/4);
-	var lift = new Lift(40,liftHeight,40,true);
+	var lift = new Lift(40,liftHeight,40,true,2,FLOOR_HEIGHT);
 	lift.mesh().position.set(0,FLOOR_HEIGHT/4-((FLOOR_HEIGHT/2)-(liftHeight/2)),-120);
 	var liftCutOut = new THREE.Mesh(new THREE.CubeGeometry(
 	        40,liftHeight,10));
@@ -33,6 +34,10 @@ var Building = function() {
 	floor1.mesh().position.y=-FLOOR_HEIGHT/4;
 	buildingObjects.add(floor1.mesh());
 
+	var floor2 = new Floor(1,FLOOR_HEIGHT,liftCutOut);
+	floor2.mesh().position.y=-FLOOR_HEIGHT/4 + FLOOR_HEIGHT;
+	buildingObjects.add(floor2.mesh());
+
 	var lobby = createLobby();
 	buildingObjects.add(lobby);
 
@@ -41,8 +46,16 @@ var Building = function() {
 		mesh : function () {
 			return _mesh;
 		},
-		updateMirror: function(renderer,scene) {
-			lift.updateMirror(renderer,scene);
+		update: function(renderer,scene) {
+			lift.update(renderer,scene);
+		},
+		requestLiftOpen: function() {
+			if (lift.getStatus() != LIFT_MOVING) {
+				lift.open();
+			}
+		},
+		requestLiftMove: function(floorNumber) {
+			lift.requestMove(floorNumber);
 		},
 		liftOpen : function(){
 			lift.open();
