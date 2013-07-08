@@ -72,7 +72,7 @@ var scene = createScene();
 var camera = createCamera();
 var renderer = createRenderer();
 var axis = createAxes(600);
-scene.add(axis);
+// scene.add(axis);
 var sphere = createSphere();
 var group = new THREE.Object3D();
 group.add(sphere);
@@ -93,7 +93,7 @@ var render = function() {
     // // Update the object's rotation & apply it
     // rotation_matrix.multiply(building.mesh().matrix);
     // // building.mesh().rotation.getRotationFromMatrix(rotation_matrix);
-    // building.update(renderer,scene);
+    building.update(renderer,scene);
 }
 
 controls.addEventListener('change',render);
