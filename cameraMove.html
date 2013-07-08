@@ -1,0 +1,175 @@
+<html>
+<body>
+<script type="text/javascript" src="js/jquery-2.0.2.js" ></script>
+<script type="text/javascript" src="js/three.min.js"></script>
+<script type="text/javascript" src="js/jquery-2.0.2.js" ></script>
+<script type="text/javascript" src="js/TrackballControls.js"></script>
+<script type="text/javascript" src="js/controls.js"></script>
+<script type="text/javascript" src="js/axis.js"></script>
+<script type="text/javascript" src="js/lights.js"></script>
+<script type="text/javascript" src="js/Lift.js"></script>
+<script type="text/javascript" src="js/tweenjs-0.4.1.min"></script>
+<script type="text/javascript" src="js/floor.js"></script>
+<script>
+$(document).ready(function(){
+var aspect = window.innerWidth / window.innerHeight;
+var near = 0.1;
+var far = 8000;
+var angle = 45;
+
+var createRenderer = function(){
+    var renderer =  new THREE.WebGLRenderer();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+    return renderer;
+}
+var createLight = function(){
+    var light = new THREE.PointLight(0xFFFFFF);
+    light.position.x=150;
+    light.position.y=150;
+    light.position.z=300;
+    return light;
+}
+
+
+var createCamera = function(){
+    var camera = new THREE.PerspectiveCamera(
+        angle, aspect, near, far);
+    camera.position.x=0;
+    camera.position.y=100;
+    camera.position.z=400;
+    camera.lookAt(new THREE.Vector3( 0, 0, 0 ));
+    return camera;
+}
+
+var createScene = function(){
+    var scene = new THREE.Scene();
+    return scene;
+}
+
+var scene = createScene();
+var camera = createCamera();
+var renderer = createRenderer();
+var axis = createAxes(600);
+var light = createAmbientLight(0xaaaaaa);
+
+    // FLOOR
+    var floorTexture = new THREE.ImageUtils.loadTexture( 'img/checkerboard.jpg' );
+    floorTexture.wrapS = floorTexture.wrapT = THREE.RepeatWrapping; 
+    floorTexture.repeat.set( 10, 10 );
+    var floorMaterial = new THREE.MeshBasicMaterial( { map: floorTexture, side: THREE.DoubleSide } );
+    var floorGeometry = new THREE.PlaneGeometry(120, 120, 10, 10);
+    var floor = new THREE.Mesh(floorGeometry, floorMaterial);
+    floor.position.x = -58.5;
+    floor.position.z = -58.5;
+    floor.position.y = -60;
+    floor.rotation.x = Math.PI / 2;
+    scene.add(floor);
+
+    // floor.position.x -= 58.5;
+
+    camera.position.x = 0;
+    camera.position.y = 10;
+    camera.position.z = 100;
+
+    var cubeGeometry = new THREE.CubeGeometry(
+        30,30,30);
+    var materialPhong = new THREE.MeshPhongMaterial( { shininess: 50, ambient: 0xFFFFFF, color: 0xff4444, specular: 0xff4444} );    
+    var cubeMesh = new THREE.Mesh(cubeGeometry,materialPhong);
+
+    // scene.add(cubeMesh);
+
+// var horseStepCount = 0;
+// var horseMove = function () {
+//     console.log(horseStepCount);
+//     switch(horseStepCount) {
+//         case 0:
+//             floor.position.z += 3;
+//             horseStepCount++;
+//             break;
+//         case 1:
+//             floor.position.z += 3;
+//             horseStepCount++;
+//             break;
+//         case 2:
+//             floor.position.x -= 3;
+//             horseStepCount = 0;
+//             break;
+//     }    
+// }
+    var sphere = new THREE.SphereGeometry(2,30,30);
+    var sphereMesh = new THREE.Mesh(sphere, materialPhong);
+    // sphereMesh.position = position;
+    sphereMesh.position.set(0,0,0);
+    // sphereMesh.rotation.x=90 * (Math.PI / 180);
+scene.add(sphereMesh);
+
+scene.add(createLight());
+// scene.add(axis);
+// scene.add(light);
+
+var controls = createControls(camera);
+
+var render = function() {
+    TWEEN.update();
+    renderer.render(scene,camera);
+}
+var open = false;
+
+controls.addEventListener('change',render);
+var count = 0;
+var animate = function(){
+    requestAnimationFrame(animate);
+    render();
+    // if ((count%10)==0) {
+    //     horseMove();
+    // }
+    // count++;
+    // if ((count % 10) == 0) {
+    //     horseMove();
+    // }
+
+    // if (count == 1000) {
+    //     camera.position.x = 1.5;
+    //     camera.position.y = 10;
+    //     camera.position.z = 58.5;
+    //     floor.position.set(0,0,0);
+    // }
+    // console.log(count);
+    // animateScene();
+    controls.update();
+}
+
+var move = function() {
+    // new TWEEN.Tween(sphereMesh.position).to({x:58.5,y:50,z:58.5},5000).easing( TWEEN.Easing.Bounce.Out).start();
+    // new TWEEN.Tween(floor.position).to({x:58.5,y:0,z:58.5},5000).easing( TWEEN.Easing.Linear.None).start();
+    new TWEEN.Tween(floor.position).to({x:58.5,z:58.5},2000).easing( TWEEN.Easing.Quadratic.Out).start();
+    new TWEEN.Tween(floor.position).to({y:-2},2000).easing( TWEEN.Easing.Bounce.Out).start();
+}
+
+animate();
+
+$("#container").append(renderer.domElement);
+
+var onWindowResize = function() {
+    camera.aspect = window.innerWidth / window.innerHeight;
+    camera.updateProjectionMatrix();
+    renderer.setSize(window.innerWidth,window.innerHeight);
+}
+
+window.addEventListener('resize',onWindowResize,false);
+
+$('body').keypress(function(event) {
+    if (event.charCode && event.charCode == 32) {
+        open = !open;
+    } else if (event.charCode && event.charCode == 49) {
+        move();
+    }
+
+});
+
+});
+</script>
+
+<div id="container" ></div>
+</body>
+</html>

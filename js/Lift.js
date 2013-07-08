@@ -178,13 +178,22 @@ var Lift = function (width,height,depth,hasMirrorInBack,floorCount, floorHeight)
 		getStatus : function() {
 			return liftStatus;
 		},
-		open : function() {
+		open : function(nextStep) {
 			if (_notMoving()) {
-				liftStatus = LIFT_DOORS_OPENING;
+				doors.open(function() {
+					liftStatus = LIFT_DOORS_OPEN;
+					_addDoorOpenTimeout();
+					nextStep();
+				});
 			}
 		},
 		close : function() {
-			liftStatus = LIFT_DOORS_CLOSING;
+			if (_notMoving()) {
+				liftStatus = LIFT_DOORS_CLOSING;
+				doors.close(function(){
+					liftStatus = LIFT_DOORS_CLOSED;		
+				});
+			}
 		},
 		requestMove: function(floorNumber) {
 			if (doors.areDoorsClosed()) {
@@ -207,8 +216,8 @@ var Lift = function (width,height,depth,hasMirrorInBack,floorCount, floorHeight)
 
 	var _handleCommand = function() {
 		switch(liftStatus) {
-			case LIFT_DOORS_OPENING: _open(); 
-				break;
+			// case LIFT_DOORS_OPENING: _open(); 
+			// 	break;
 			case LIFT_DOORS_CLOSING: _close();
 				break;
 			case LIFT_DOORS_OPEN: _addDoorOpenTimeout();
@@ -228,26 +237,31 @@ var Lift = function (width,height,depth,hasMirrorInBack,floorCount, floorHeight)
 				clearTimeout(_doorCloseTimer);
 				_api.close();
 				_doorCloseTimerSet = false;
-			}, 3000);
+			}, 6000);
 			_doorCloseTimerSet = true;
 		}
 	}
 
 	var _open = function() {
 		if (_notMoving()) {
-			doors.open();
+			doors.open(function() {
+				liftStatus = LIFT_DOORS_OPEN;
+				_addDoorOpenTimeout();
+			});
 		}
-		if (doors.areDoorsOpen()) {
-			liftStatus = LIFT_DOORS_OPEN;
-		}
+		// if (doors.areDoorsOpen()) {
+		// 	liftStatus = LIFT_DOORS_OPEN;
+		// }
 	}
 	var _close = function() {
-		if (_notMoving()) {
-			doors.close();
-		}
-		if (doors.areDoorsClosed()) {
-			liftStatus = LIFT_DOORS_CLOSED;
-		}
+		// if (_notMoving()) {
+		// 	doors.close(function(){
+		// 		liftStatus = LIFT_DOORS_CLOSED;		
+		// 	});
+		// }
+		// if (doors.areDoorsClosed()) {
+		// 	liftStatus = LIFT_DOORS_CLOSED;
+		// }
 	}
 
 	var _moveUp = function() {
@@ -336,17 +350,24 @@ var LiftDoors = function(width,height,depth,thickness) {
 	// liftDoors.add(outterLeft.mesh());
 	// liftDoors.add(outterRight.mesh());
 	var doorSpeed = 0.2;
+	var doorPositionBeforeOpen = [];
 	var _api = {
-	open: function() {
-		if(doorOpenWidth < width/2) {
-			innerLeft.moveLeft(doorSpeed);
-			innerRight.moveRight(doorSpeed);
-			if (doorOpenWidth > 0) {
-				// outterLeft.moveLeft(doorSpeed);
-				// outterRight.moveRight(doorSpeed);
-			}
-			doorOpenWidth+=doorSpeed;
-		}
+	open: function(nextStep) {
+		// if(doorOpenWidth < width/2) {
+		// 	innerLeft.moveLeft(doorSpeed);
+		// 	innerRight.moveRight(doorSpeed);
+		// 	if (doorOpenWidth > 0) {
+		// 		// outterLeft.moveLeft(doorSpeed);
+		// 		// outterRight.moveRight(doorSpeed);
+		// 	}
+		// 	doorOpenWidth+=doorSpeed;
+		// }
+		// console.log("Open");
+		doorPositionBeforeOpen[0] = innerLeft.mesh().position.x;
+		doorPositionBeforeOpen[1] = innerRight.mesh().position.x;
+
+		new TWEEN.Tween(innerLeft.mesh().position).to({x:innerLeft.mesh().position.x-width/2},2000).easing( TWEEN.Easing.Linear.None).start().onComplete(nextStep);
+		new TWEEN.Tween(innerRight.mesh().position).to({x:innerRight.mesh().position.x + width/2},2000).easing( TWEEN.Easing.Linear.None).start();
 	},
 	areDoorsOpen: function () {
 		return doorOpenWidth >= width/2;
@@ -357,17 +378,20 @@ var LiftDoors = function(width,height,depth,thickness) {
 	mesh: function() {
 		return liftDoors;
 	},
-	close: function() {
-		if(doorOpenWidth > 0) {
-			innerLeft.moveRight(doorSpeed);
-			innerRight.moveLeft(doorSpeed);
-			if (doorOpenWidth < width/2) {
-				// outterLeft.moveRight(doorSpeed);
-				// outterRight.moveLeft(doorSpeed);
-			}
+	close: function(nextStep) {
+		// if(doorOpenWidth > 0) {
+		// 	innerLeft.moveRight(doorSpeed);
+		// 	innerRight.moveLeft(doorSpeed);
+		// 	if (doorOpenWidth < width/2) {
+		// 		// outterLeft.moveRight(doorSpeed);
+		// 		// outterRight.moveLeft(doorSpeed);
+		// 	}
 
-			doorOpenWidth-=doorSpeed;
-		}
+		// 	doorOpenWidth-=doorSpeed;
+		// }
+		new TWEEN.Tween(innerLeft.mesh().position).to({x:doorPositionBeforeOpen[0]},2000).easing( TWEEN.Easing.Linear.None).start().onComplete(nextStep);
+		new TWEEN.Tween(innerRight.mesh().position).to({x:doorPositionBeforeOpen[1]},2000).easing( TWEEN.Easing.Linear.None).start().onComplete(nextStep);
+
 	}
 	}
 	return _api;
@@ -375,6 +399,7 @@ var LiftDoors = function(width,height,depth,thickness) {
 var Door = function(width,height,thickness,material,position) {
 	var _mesh = new THREE.Mesh(new THREE.CubeGeometry(width,height,thickness),material);
 	_mesh.position = position;
+
 	var _api = {
 		mesh : function() {
 			return _mesh;

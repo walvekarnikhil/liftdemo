@@ -42,8 +42,9 @@ var scene = createScene();
 var camera = createCamera();
 var renderer = createRenderer();
 var axis = createAxes(600);
-var lift = new Lift(60,100,60,true,scene);
+var lift = new Lift(60,75,60,true,2,100);
 var light = createAmbientLight(0xaaaaaa);
+
 scene.add(lift.mesh());
 
 scene.add(axis);

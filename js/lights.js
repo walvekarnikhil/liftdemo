@@ -16,9 +16,11 @@ var createSpotLight = function(color,intensity,position,target,distance) {
 	spotLight.shadowCameraFov = 30;
 	spotLight.castShadow = true;
 
-	var sphere = new THREE.SphereGeometry(2);
+	var sphere = new THREE.CircleGeometry(2);
 	var sphereMesh = new THREE.Mesh(sphere, new THREE.MeshBasicMaterial({color:color}));
 	sphereMesh.position = position;
+	sphereMesh.position.y -= 1;
+	sphereMesh.rotation.x=90 * (Math.PI / 180);
 	
 	group.add(spotLight);
 	group.add(sphereMesh);
