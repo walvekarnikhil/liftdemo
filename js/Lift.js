@@ -334,8 +334,8 @@ var LiftDoors = function(width,height,depth,thickness) {
             map:liftTexture
         });
 
-	var doorInnerLeftPosition = new THREE.Vector3(-width/4,0,depth/2);
-	var doorInnerRightPosition = new THREE.Vector3(width/4,0,depth/2);
+	var doorInnerLeftPosition = new THREE.Vector3(-width/4 - 0.05,0,depth/2);
+	var doorInnerRightPosition = new THREE.Vector3(width/4+ 0.05,0,depth/2);
 	var doorOutterLeftPosition = new THREE.Vector3(-width/4,0,(depth/2)+thickness+1);
 	var doorOutterRightPosition = new THREE.Vector3(width/4,0,(depth/2)+thickness+1);
 
